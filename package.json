@@ -1,0 +1,98 @@
+{
+  "name": "vscode-ext-focus",
+  "displayName": "Focus",
+  "description": "Show only the files you're working on — changes on the current git branch.",
+  "version": "0.0.5",
+  "publisher": "gjantsch",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    "workspaceContains:.git"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "focus-container",
+          "title": "Focus",
+          "icon": "icons/focus.svg"
+        }
+      ]
+    },
+    "views": {
+      "focus-container": [
+        {
+          "id": "focusView",
+          "name": "Working Files",
+          "icon": "icons/focus.svg",
+          "contextualTitle": "Focus"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "focus.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "focus.setBaseBranch",
+        "title": "Set Base Branch",
+        "icon": "$(git-branch)"
+      },
+      {
+        "command": "focus.openFile",
+        "title": "Open File"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "focus.refresh",
+          "when": "view == focusView",
+          "group": "navigation"
+        },
+        {
+          "command": "focus.setBaseBranch",
+          "when": "view == focusView",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Focus",
+      "properties": {
+        "focus.baseBranch": {
+          "type": "string",
+          "default": "",
+          "description": "Override the base branch for comparison (default: auto-detect from remote HEAD, then main/master)"
+        },
+        "focus.showUntracked": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show untracked files in the Focus panel"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "node ./out/test/runTests.js",
+    "test:unit": "TS_NODE_PROJECT=tsconfig.test.json mocha --config .mocharc.yml",
+    "install-ext": "./install.sh"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.80.0",
+    "@vscode/test-electron": "^2.3.9",
+    "mocha": "^10.3.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.4.5"
+  }
+}

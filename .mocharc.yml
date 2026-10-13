@@ -1,0 +1,8 @@
+require:
+  - ts-node/register
+  - tsconfig-paths/register
+project: tsconfig.test.json
+spec: src/test/suite/**/*.test.ts
+ui: tdd
+color: true
+timeout: 10000

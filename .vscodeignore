@@ -1,0 +1,6 @@
+src/**
+.vscode-test/**
+.mocharc.yml
+tsconfig.test.json
+node_modules/.bin
+**/*.map
