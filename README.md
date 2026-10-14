@@ -1,6 +1,6 @@
 # Focus Visual Studio Code Extension
 
-I wasn't satisfied with the Source Control and Merge Request extension when discovering the files I'was working on. I wanted something very simple: to know wich files, in relation to main/master, I had touched during my work.
+I wasn't satisfied with the Source Control and Pull Request extension to discover and list only the files I'was working on and all I wanted was something very simple: to know wich files, in relation to main/master, I had touched during my work.
 
 So, this is a VS Code extension that cuts through the noise of large codebases by showing only the files you are currently working on. Instead of navigating the full file tree, a dedicated panel in the Activity Bar lists every file that is different on your current git branch compared to the base branch, including unstaged edits, staged changes, commits not yet merged, and new untracked files.
 
