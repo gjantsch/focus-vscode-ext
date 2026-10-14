@@ -13,7 +13,7 @@ So, this is a VS Code extension that cuts through the noise of large codebases b
 - Covers all change states: committed, staged, unstaged, and untracked
 - Click any file to open it in the editor
 - Auto-refreshes when you save, stage, commit, or switch branches
-- Optional grouping by status category (staged, unstaged, committed, untracked)
+- Files are shown as a directory tree, grouped by folder
 - Toolbar button to manually set the base branch
 
 ---
@@ -99,6 +99,5 @@ npm run test:unit
 |---|---|---|
 | `focus.baseBranch` | (auto) | Branch to compare against. Leave empty to auto-detect from remote HEAD, falling back to main then master. |
 | `focus.showUntracked` | true | Include untracked files in the panel. |
-| `focus.groupByStatus` | false | Group files by category instead of showing a flat sorted list. |
 
 You can also set the base branch from inside VS Code using the branch icon in the Focus panel toolbar.
