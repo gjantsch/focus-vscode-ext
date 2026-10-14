@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { GitService } from './gitService';
 import { FileChange, FocusItem, DirNodeRef, labelForChange } from './focusItem';
 

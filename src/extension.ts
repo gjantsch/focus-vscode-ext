@@ -3,6 +3,13 @@ import { GitService } from './gitService';
 import { FocusProvider } from './focusProvider';
 import { GitStatus } from './focusItem';
 
+/**
+ * Debounces a function, ensuring it is only called after a specified delay
+ * since the last invocation.
+ * @param fn The function to debounce.
+ * @param ms The delay in milliseconds.
+ * @returns A debounced version of the function.
+ */
 function debounce(fn: () => void, ms: number): () => void {
   let timer: ReturnType<typeof setTimeout>;
   return () => {
@@ -11,9 +18,15 @@ function debounce(fn: () => void, ms: number): () => void {
   };
 }
 
+/**
+ * VS Code extension entry point.
+ * @param context The extension context.
+ * @returns A promise that resolves when the extension is activated.
+ */
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
   if (!root) {
+    // No workspace folder found, exit early.
     return;
   }
 

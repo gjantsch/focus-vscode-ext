@@ -38,6 +38,13 @@ exports.deactivate = deactivate;
 const vscode = __importStar(require("vscode"));
 const gitService_1 = require("./gitService");
 const focusProvider_1 = require("./focusProvider");
+/**
+ * Debounces a function, ensuring it is only called after a specified delay
+ * since the last invocation.
+ * @param fn The function to debounce.
+ * @param ms The delay in milliseconds.
+ * @returns A debounced version of the function.
+ */
 function debounce(fn, ms) {
     let timer;
     return () => {
@@ -45,9 +52,15 @@ function debounce(fn, ms) {
         timer = setTimeout(fn, ms);
     };
 }
+/**
+ * VS Code extension entry point.
+ * @param context The extension context.
+ * @returns A promise that resolves when the extension is activated.
+ */
 async function activate(context) {
     const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!root) {
+        // No workspace folder found, exit early.
         return;
     }
     const gitService = new gitService_1.GitService(root);
