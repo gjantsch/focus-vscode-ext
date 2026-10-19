@@ -36,16 +36,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FocusProvider = void 0;
 const vscode = __importStar(require("vscode"));
 const focusItem_1 = require("./focusItem");
-function makeDirNode() {
-    return { children: new Map(), files: [] };
+function makeDirNode(absolutePath = '') {
+    return { absolutePath, children: new Map(), files: [] };
 }
-function insertIntoTree(root, change) {
+function insertIntoTree(root, change, workspaceRoot) {
     const parts = change.relativePath.split('/');
     let node = root;
+    let currentPath = workspaceRoot;
     for (let i = 0; i < parts.length - 1; i++) {
         const seg = parts[i];
+        currentPath = currentPath + '/' + seg;
         if (!node.children.has(seg)) {
-            node.children.set(seg, makeDirNode());
+            node.children.set(seg, makeDirNode(currentPath));
         }
         node = node.children.get(seg);
     }
@@ -91,10 +93,10 @@ class FocusProvider {
         return this.buildTree();
     }
     buildTree() {
-        const root = makeDirNode();
+        const root = makeDirNode(this.gitService.workspaceRoot);
         const sorted = [...this.cachedChanges].sort((a, b) => a.relativePath.localeCompare(b.relativePath));
         for (const change of sorted) {
-            insertIntoTree(root, change);
+            insertIntoTree(root, change, this.gitService.workspaceRoot);
         }
         return this.itemsFromDirNode(root);
     }

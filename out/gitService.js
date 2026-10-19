@@ -236,26 +236,18 @@ class GitService {
         return this.makeChange(filePath, baseStatus, category);
     }
     makeChange(filePart, status, category) {
-        // Handle rename arrows from porcelain v1: "old -> new"
-        let relativePath = filePart.trim();
-        let originalPath;
-        if (relativePath.includes(' -> ')) {
-            const parts = relativePath.split(' -> ');
-            originalPath = parts[0].trim();
-            relativePath = parts[1].trim();
-        }
+        const relativePath = filePart.trim();
         // Strip trailing slash from untracked directory entries (e.g. "?? dirname/")
-        if (relativePath.endsWith('/')) {
-            relativePath = relativePath.slice(0, -1);
-        }
-        if (!relativePath)
+        const cleanPath = relativePath.endsWith('/')
+            ? relativePath.slice(0, -1)
+            : relativePath;
+        if (!cleanPath)
             return null;
         return {
-            absolutePath: path.join(this.workspaceRoot, relativePath),
-            relativePath,
+            absolutePath: path.join(this.workspaceRoot, cleanPath),
+            relativePath: cleanPath,
             status,
             category,
-            originalPath,
         };
     }
     execGit(args) {

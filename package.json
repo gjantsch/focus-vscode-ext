@@ -2,7 +2,7 @@
   "name": "vscode-ext-focus",
   "displayName": "Focus",
   "description": "Show only the files you're working on — changes on the current git branch.",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "publisher": "gjantsch",
   "engines": {
     "vscode": "^1.80.0"

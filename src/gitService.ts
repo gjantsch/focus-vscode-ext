@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { FileChange, GitStatus, ChangeCategory } from './focusItem';
 
+/** Higher priority wins when the same file appears in multiple change categories. */
 const CATEGORY_PRIORITY: Record<ChangeCategory, number> = {
   untracked: 4,
   staged: 3,
@@ -10,7 +11,9 @@ const CATEGORY_PRIORITY: Record<ChangeCategory, number> = {
   committed: 1,
 };
 
+/** Runs git commands and aggregates all changed files on the current branch. */
 export class GitService {
+  /** Cached result of base-branch detection; cleared by `invalidateCache`. */
   private baseBranchCache: string | null = null;
 
   constructor(public readonly workspaceRoot: string) {}
@@ -40,10 +43,12 @@ export class GitService {
     return this.baseBranchCache;
   }
 
+  /** Clears the cached base branch so the next call re-detects it. */
   invalidateCache(): void {
     this.baseBranchCache = null;
   }
 
+  /** Returns all file changes: working-tree status merged with committed-but-not-yet-pushed diff. */
   async getAllChanges(): Promise<FileChange[]> {
     const baseBranch = await this.getBaseBranch();
     const [committed, working] = await Promise.all([
@@ -61,6 +66,10 @@ export class GitService {
 
   // --- Private ---
 
+  /**
+   * Detects the base branch by querying the remote HEAD, then falling back to
+   * checking if `main` exists locally, and finally defaulting to `master`.
+   */
   private async detectBaseBranch(): Promise<string> {
     // Try remote HEAD first
     try {
@@ -166,6 +175,10 @@ export class GitService {
     }
   }
 
+  /**
+   * Deduplicates changes by relative path, keeping the entry with the highest
+   * category priority (untracked > staged > unstaged > committed).
+   */
   deduplicateChanges(changes: FileChange[]): FileChange[] {
     const byPath = new Map<string, FileChange>();
     for (const change of changes) {
@@ -217,31 +230,24 @@ export class GitService {
     status: GitStatus,
     category: ChangeCategory
   ): FileChange | null {
-    // Handle rename arrows from porcelain v1: "old -> new"
-    let relativePath = filePart.trim();
-    let originalPath: string | undefined;
-    if (relativePath.includes(' -> ')) {
-      const parts = relativePath.split(' -> ');
-      originalPath = parts[0].trim();
-      relativePath = parts[1].trim();
-    }
+    const relativePath = filePart.trim();
 
     // Strip trailing slash from untracked directory entries (e.g. "?? dirname/")
-    if (relativePath.endsWith('/')) {
-      relativePath = relativePath.slice(0, -1);
-    }
+    const cleanPath = relativePath.endsWith('/')
+      ? relativePath.slice(0, -1)
+      : relativePath;
 
-    if (!relativePath) return null;
+    if (!cleanPath) return null;
 
     return {
-      absolutePath: path.join(this.workspaceRoot, relativePath),
-      relativePath,
+      absolutePath: path.join(this.workspaceRoot, cleanPath),
+      relativePath: cleanPath,
       status,
       category,
-      originalPath,
     };
   }
 
+  /** Spawns a git subprocess with a 5-second timeout. Rejects on non-zero exit or timeout. */
   private execGit(args: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
       const proc = cp.spawn('git', args, {

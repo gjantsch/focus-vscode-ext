@@ -6,23 +6,30 @@ type ChangeEvent = FocusItem | undefined | null;
 
 type DirNode = DirNodeRef;
 
-function makeDirNode(): DirNode {
-  return { children: new Map(), files: [] };
+function makeDirNode(absolutePath: string = ''): DirNode {
+  return { absolutePath, children: new Map(), files: [] };
 }
 
-function insertIntoTree(root: DirNode, change: FileChange): void {
+/** Inserts a file change into the directory tree, creating intermediate nodes as needed. */
+function insertIntoTree(root: DirNode, change: FileChange, workspaceRoot: string): void {
   const parts = change.relativePath.split('/');
   let node = root;
+  let currentPath = workspaceRoot;
   for (let i = 0; i < parts.length - 1; i++) {
     const seg = parts[i];
+    currentPath = currentPath + '/' + seg;
     if (!node.children.has(seg)) {
-      node.children.set(seg, makeDirNode());
+      node.children.set(seg, makeDirNode(currentPath));
     }
     node = node.children.get(seg)!;
   }
   node.files.push(change);
 }
 
+/**
+ * `TreeDataProvider` that populates the Focus view with files changed on the current branch.
+ * Fires `onBranchChange` whenever the active branch name changes so the view title can be updated.
+ */
 export class FocusProvider implements vscode.TreeDataProvider<FocusItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<ChangeEvent>();
   readonly onDidChangeTreeData: vscode.Event<ChangeEvent> = this._onDidChangeTreeData.event;
@@ -46,6 +53,7 @@ export class FocusProvider implements vscode.TreeDataProvider<FocusItem> {
     return this.getRootItems();
   }
 
+  /** Triggers a full tree refresh by firing the change event with no specific element. */
   refresh(): void {
     this._onDidChangeTreeData.fire(undefined);
   }
@@ -70,13 +78,14 @@ export class FocusProvider implements vscode.TreeDataProvider<FocusItem> {
     return this.buildTree();
   }
 
+  /** Builds a nested directory/file tree from `cachedChanges` and returns the top-level items. */
   buildTree(): FocusItem[] {
-    const root = makeDirNode();
+    const root = makeDirNode(this.gitService.workspaceRoot);
     const sorted = [...this.cachedChanges].sort((a, b) =>
       a.relativePath.localeCompare(b.relativePath)
     );
     for (const change of sorted) {
-      insertIntoTree(root, change);
+      insertIntoTree(root, change, this.gitService.workspaceRoot);
     }
     return this.itemsFromDirNode(root);
   }

@@ -65,6 +65,7 @@ class FocusItem extends vscode.TreeItem {
             this.contextValue = `focusFile_${change.status}`;
         }
         else if (dirNode) {
+            this.resourceUri = vscode.Uri.file(dirNode.absolutePath);
             this.iconPath = new vscode.ThemeIcon('folder');
             this.contextValue = 'focusDir';
         }
