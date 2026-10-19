@@ -69,6 +69,15 @@ export class GitService {
   /**
    * Detects the base branch by querying the remote HEAD, then falling back to
    * checking if `main` exists locally, and finally defaulting to `master`.
+   * 
+   * The basic idea is:
+   * $ git remote show origin
+   * remote origin
+   * Fetch URL: git@github.com:user/repo.git
+   * Push  URL: git@github.com:user/repo.git
+   * HEAD branch: master
+   * Remote branches:
+   * ... list of the remote branches
    */
   private async detectBaseBranch(): Promise<string> {
     // Try remote HEAD first
