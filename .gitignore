@@ -150,3 +150,6 @@ vite.config.ts.timestamp-*
 
 .claude/
 ELABORATION.md
+
+# avoid committing VSIX packages
+*.vsix
